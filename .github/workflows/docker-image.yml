@@ -30,21 +30,22 @@ jobs:
       env:
         DOCKER_USER: ${{secrets.DOCKER_USER}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+
+    - name: Buid a Docker image
+      env:
         NEW_VERSION: ${{steps.version.outputs.version}}
       run: |
-        echo "Inciando login"
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-        echo "New version: $NEW_VERSION"
+        docker build -t pryrop/docker-graphql:$NEW_VERSION .
+        docker build -t pryrop/docker-graphql:latest .
 
-    # - name: Buid a Docker image
-    #   run: |
-    #     docker build -t pryrop/docker-graphql:0.0.2 .
-    #     docker build -t pryrop/docker-graphql:latest .
-
-    # - name: Push a Docker image
-    #   run: |
-    #     docker push pryrop/docker-graphql:0.0.2
-    #     docker push pryrop/docker-graphql:latest
+    - name: Push a Docker image
+      env:
+        NEW_VERSION: ${{steps.version.outputs.version}}
+      run: |
+        docker push pryrop/docker-graphql:$NEW_VERSION
+        docker push pryrop/docker-graphql:latest
 
     # - name: Build the Docker image
       # run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
